@@ -25,6 +25,3 @@ jobs:
       - name: Push to Dockerhub
         run: |
           docker push abuchijoe/complete-devops-project:${{ env.SHORT_SHA }}
-      # - name: Deploy to Kubernetes
-      #   run: |
-      #     kubectl set image deployment/complete-devops-project complete-devops-project=abuchijoe/complete-devops-project:${{ env.SHORT_SHA }} -n devops-project
