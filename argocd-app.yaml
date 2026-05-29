@@ -7,7 +7,7 @@ spec:
   project: default
   source:
     repoURL: "https://github.com/Joseph-peemi/complete-devops-project"
-    targetRevision: Master
+    targetRevision: HEAD
     path: "complete-devops-project-time-printer"
     destination:
       server: "https://kubernetes.default.svc"
