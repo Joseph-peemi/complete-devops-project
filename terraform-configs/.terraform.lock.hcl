@@ -2,7 +2,8 @@
 # Manual edits may be lost in future updates.
 
 provider "registry.terraform.io/hashicorp/helm" {
-  version = "3.1.2"
+  version     = "3.1.2"
+  constraints = "~> 3.0"
   hashes = [
     "h1:gLW/6esB5hrMcZFDNxrdonlmzweVBgyFZf9eY9BT5/0=",
     "zh:1086b24b20d94afc331eb38c52b70848899fd0efaed46d9f4646180b96e9dffd",
