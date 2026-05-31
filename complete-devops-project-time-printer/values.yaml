@@ -1,7 +1,7 @@
 replicaCount: 1
 image:
-  repository: abuchijoe/complete-devops-project
-  tag: 19f4e55
+  repository: 627119595303.dkr.ecr.us-east-1.amazonaws.com/complete-devops-project
+  tag: fd47259
   pullPolicy: IfNotPresent
 service:
   type: ClusterIP
