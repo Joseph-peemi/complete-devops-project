@@ -26,7 +26,7 @@ A complete DevOps pipeline using Docker, Terraform, Minikube, Helm, ArgoCD and G
 
 ### 1. Start Minikube
 ```bash
-minikube start --driver=docker
+provisioned with terraform
 ```
 
 ### 2. Provision Infrastructure with Terraform
