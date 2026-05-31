@@ -31,7 +31,7 @@ jobs:
           git config --local user.name "Joseph-peemi"
       - name: Update Helm Chart with new Image tag
         run: |
-          sed -i "s/tag:.*/tag:${{ env.SHORT_SHA }}/" ./complete-devops-project-time-printer/values.yaml
+          sed -i "s/tag:.*/tag: ${{ env.SHORT_SHA }}/" ./complete-devops-project-time-printer/values.yaml
           git add ./complete-devops-project-time-printer/values.yaml
           git commit -m "Updated image tag to ${{ env.SHORT_SHA }}"
           git push
