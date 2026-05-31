@@ -1,6 +1,6 @@
 image:
   repository: abuchijoe/complete-devops-project
-  tag:0c51866
+  tag:a7a26cd
   pullPolicy: IfNotPresent
 service:
   type: ClusterIP
