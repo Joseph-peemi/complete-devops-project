@@ -39,13 +39,23 @@ terraform apply tfplan
 
 ### 3. Access ArgoCD
 ```bash
-kubectl port-forward svc/argocd-server -n argocd 8081:80
+kubectl port-forward svc/argocd-server -n argocd 8081:443
 ```
 Open `http://localhost:8081` in your browser.
 
 Get the initial admin password:
 ```bash
-kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 -d
+```
+
+Login to ArgoCD CLI:
+```bash
+argocd login localhost:8081 --username admin --password <output from above command> --insecure
+```
+
+Add your GitHub repo to ArgoCD:
+```bash
+argocd repo add https://github.com/<github-username>/<repo> --username <github-username> --password <github-password-or-token> --server localhost:8081 --insecure
 ```
 
 ### 4. Deploy the Application
