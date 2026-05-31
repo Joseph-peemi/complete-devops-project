@@ -1,4 +1,5 @@
 resource "helm_release" "argocd" {
+  depends_on = [module.eks]
   name             = "argocd"
   chart            = "argo-cd"
   repository       = "https://argoproj.github.io/argo-helm"

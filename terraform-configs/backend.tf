@@ -1,5 +1,7 @@
 terraform {
-  backend "local" {
-    path = "./terraform_tfstate"
+  backend "s3" {
+    bucket = "complete-devops-project-terraform-state"
+    key    = "terraform.tfstate"
+    region = "us-east-1"
   }
 }

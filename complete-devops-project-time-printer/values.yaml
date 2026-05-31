@@ -1,3 +1,4 @@
+replicaCount: 1
 image:
   repository: abuchijoe/complete-devops-project
   tag: 19f4e55
