@@ -4,20 +4,10 @@ image:
   tag: b207b10
   pullPolicy: IfNotPresent
 service:
-  type: ClusterIP
+  type: LoadBalancer
   port: 8080
 ingress:
-  enabled: true
-  className: alb
-  annotations:
-    kubernetes.io/ingress.class: alb
-    alb.ingress.kubernetes.io/scheme: internet-facing
-    alb.ingress.kubernetes.io/target-type: ip
-  hosts:
-    - host: ""
-      paths:
-        - path: /
-          pathType: Prefix
+  enabled: false
 httpRoute:
   enabled: false
 serviceAccount:
