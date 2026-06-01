@@ -273,6 +273,54 @@ Ingress and LoadBalancer service type were conflicting. ArgoCD kept reverting th
 http://<EXTERNAL-IP>:8080
 ```
 
+### 21. Image Tag Parsed as Scientific Notation — `couldn't parse image name`
+Git SHA tags like `603e100` were being parsed as scientific notation (`6.03e+102`) by the YAML parser. Fixed by quoting the tag in `values.yaml` and updating the `sed` command in `ci.yaml`:
+```yaml
+# wrong
+tag: 603e100
+
+# correct
+tag: "603e100"
+```
+```bash
+# wrong
+sed -i "s/tag:.*/tag: $SHORT_SHA/"
+
+# correct
+sed -i 's/tag:.*/tag: "'"$SHORT_SHA"'"/'
+```
+
+### 22. CI Pipeline Not Meeting Organization Standards
+Updated `ci.yaml` to meet organization standards:
+- Upgraded `actions/checkout@v2` to `@v4`
+- Added `permissions: contents: write` and `id-token: write`
+- Added `timeout-minutes: 30` to prevent hung jobs
+- Added `environment: production`
+- Removed commented out DockerHub steps
+- Added `--no-verify` flag to `git push`
+
+### 23. Code Quality — Using `time` module instead of `datetime`
+The `time` module doesn't handle timezones consistently. Fixed by replacing with `datetime`:
+```python
+# wrong
+import time
+current_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+
+# correct
+from datetime import datetime, timezone
+current_time = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+```
+
+### 24. `.gitignore` Missing Sensitive File Entries
+Added missing entries to prevent sensitive files from being committed:
+```
+*.tfvars
+*.tfplan
+tfplan
+.terraform.lock.hcl
+**/.terraform/
+```
+
 ---
 
 When debugging with `kubectl logs`, ignore all `level=info` lines and focus on:
