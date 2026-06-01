@@ -80,7 +80,12 @@ kubectl apply -f argocd-app.yaml
 ```bash
 kubectl get svc -n default
 ```
-Use the `EXTERNAL-IP` from the LoadBalancer or Ingress to access the app in the browser.
+Use the `EXTERNAL-IP` from the LoadBalancer to access the app in the browser on port `8080`:
+```
+http://<EXTERNAL-IP>:8080
+```
+
+> Note: It may take 2-3 minutes for the LoadBalancer to be provisioned after deployment.
 
 ---
 
@@ -257,9 +262,16 @@ provider "helm" {
 }
 ```
 
----
+### 20. LoadBalancer Not Reachable — `ingress conflict with ClusterIP`
+Ingress and LoadBalancer service type were conflicting. ArgoCD kept reverting the service back to `ClusterIP`. Fixed by:
+- Disabling ingress in `values.yaml` since AWS Load Balancer Controller was not installed
+- Keeping `service.type: LoadBalancer` in `values.yaml` so ArgoCD deploys it correctly
+- Accessing the app via the ELB DNS name on port `8080`:
+```
+http://<EXTERNAL-IP>:8080
+```
 
-## How to Read Logs for Errors
+---
 
 When debugging with `kubectl logs`, ignore all `level=info` lines and focus on:
 - `level=error` — something went wrong
