@@ -1,7 +1,7 @@
 replicaCount: 1
 image:
   repository: 627119595303.dkr.ecr.us-east-1.amazonaws.com/complete-devops-project
-  tag: b207b10
+  tag: d73a8a2
   pullPolicy: IfNotPresent
 service:
   type: LoadBalancer
