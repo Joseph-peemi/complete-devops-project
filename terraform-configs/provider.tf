@@ -12,14 +12,14 @@
 
 # }
 # using the helm provider with EKS requires a different configuration, so we will comment out the previous helm provider configuration and add a new one that uses the EKS cluster information.
+data "aws_eks_cluster_auth" "cluster" {
+  name = module.eks.cluster_name
+}
+
 provider "helm" {
-  kubernetes {
+  kubernetes = {
     host                   = module.eks.cluster_endpoint
     cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
-    exec {
-      api_version = "client.authentication.k8s.io/v1beta1"
-      command     = "aws"
-      args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name]
-    }
+    token                  = data.aws_eks_cluster_auth.cluster.token
   }
 }
