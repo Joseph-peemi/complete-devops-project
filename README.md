@@ -28,8 +28,10 @@ A complete DevOps pipeline using Docker, Terraform, EKS, Helm, ArgoCD and GitHub
 
 ### 1. Create S3 Bucket for Terraform State
 ```bash
-aws s3 mb s3://complete-devops-project-terraform-state --region us-east-1
+aws s3 mb s3://<your-unique-bucket-name> --region us-east-1
 ```
+
+> Also update `backend.tf` with the same bucket name.
 
 ### 2. Provision Infrastructure with Terraform
 ```bash
