@@ -38,6 +38,7 @@ variable "public_subnets" {
   default = ["10.0.3.0/24", "10.0.4.0/24"]
 }
 
-variable "node_instance_type" {
-  default = "m7i-flex.large"
+variable "slack_webhook_url" {
+  description = "Slack webhook URL for alertmanager notifications"
+  sensitive   = true
 }
