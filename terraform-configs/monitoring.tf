@@ -21,7 +21,7 @@ resource "helm_release" "prometheus" {
         additionalScrapeConfigs:
           - job_name: 'node'
             static_configs:
-              - targets: ['node-exporter:9100']
+              - targets: ['prometheus-prometheus-node-exporter.monitoring.svc.cluster.local:9100']
 
     alertmanager:
       service:
