@@ -42,3 +42,7 @@ variable "slack_webhook_url" {
   description = "Slack webhook URL for alertmanager notifications"
   sensitive   = true
 }
+
+variable "node_instance_type" {
+  default = "m7i-flex.large"
+}
