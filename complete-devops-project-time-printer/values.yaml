@@ -5,7 +5,7 @@ podAnnotations:
   prometheus.io/path: "/metrics"
 image:
   repository: 627119595303.dkr.ecr.us-east-1.amazonaws.com/complete-devops-project
-  tag: "0332000"
+  tag: "64b4139"
   pullPolicy: IfNotPresent
 service:
   type: LoadBalancer
