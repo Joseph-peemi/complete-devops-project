@@ -1,11 +1,32 @@
-groups:
-  - name: node_alerts
-    rules:
-      - alert: HighCPUUsage
-        expr: avg(rate(node_cpu_seconds_total{mode!="idle"}[10s])) by (instance) > 0.8
-        for: 10s
+additionalPrometheusRulesMap:
+  node-alerts:
+    groups:
+      - name: node_alerts
+        rules:
+          - alert: HighCPUUsage
+            expr: 1 - avg(rate(node_cpu_seconds_total{mode="idle"}[1m])) by (instance) > 0.8
+            for: 1m
+            labels:
+              severity: warning
+            annotations:
+              summary: "High CPU usage on {{ $labels.instance }}"
+              description: "CPU usage is above 80% for more than 1 minute"
+
+      - alert: FlaskAppDown
+        expr: up{job="flask-app"} == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Flask app is down"
+          description: "Flask app has been unreachable for more than 30 seconds"
+
+      - alert: HighRequestLatency
+        expr: rate(flask_http_request_duration_seconds_sum[1m]) /
+              rate(flask_http_request_duration_seconds_count[1m]) > 0.5
+        for: 1m
         labels:
           severity: warning
         annotations:
-          summary: "High CPU usage detected on {{ $labels.instance }}"
-          description: "CPU usage is above 80% for more than 10 seconds."
+          summary: "High request latency on Flask app"
+          description: "Average request latency is above 500ms"
