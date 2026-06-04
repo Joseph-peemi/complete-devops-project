@@ -23,8 +23,9 @@ autoscaling:
 
 serviceAccount:
   create: true
-  name: ""
-
+  name: "complete-devops-project-time-printer"
+  automount: true
+  
 podAnnotations:
   prometheus.io/scrape: "true"
   prometheus.io/path: "/metrics"
