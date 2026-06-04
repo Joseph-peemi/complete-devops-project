@@ -1,30 +1,3 @@
-# terraform {
-#   required_providers {
-#     minikube = {
-#       source  = "scott-the-programmer/minikube"
-#       version = "0.4.2"
-#     }
-#     helm = {
-#       source  = "hashicorp/helm"
-#       version = "~> 3.0"
-#     }
-#   }
-# }
-
-# provider "minikube" {
-#   kubernetes_version = "v1.30.1"
-# }
-
-# resource "minikube_cluster" "minikube_docker" {
-#   driver       = "docker"
-#   cluster_name = "complete-devops-project"
-#   addons = [
-#     "default-storageclass",
-#     "storage-provisioner"
-#   ]
-# }
-
-# aws and helm providers are now defined in main.tf, so we can comment out the minikube provider and cluster resources from this file.
 terraform {
   required_providers {
     aws = {

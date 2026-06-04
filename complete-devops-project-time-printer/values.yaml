@@ -1,96 +1,27 @@
-alertmanager:
-  enabled: true
+replicaCount: 1
 
-  config:
-    global:
-      resolve_timeout: 5m
+image:
+  repository: 627119595303.dkr.ecr.us-east-1.amazonaws.com/complete-devops-project
+  pullPolicy: IfNotPresent
+  tag: "3759f6c"
 
-    route:
-      receiver: slack-notifications
-      group_by: ['alertname']
-      group_wait: 10s
-      group_interval: 5m
-      repeat_interval: 3h
+service:
+  type: LoadBalancer
+  port: 80
 
-    receivers:
-      - name: slack-notifications
-        slack_configs:
-          - api_url: "<your-slack-webhook-url>"
-            channel: "#devops-alerts-monitoring"
-            username: "PrometheusBot"
-            icon_emoji: ":rotating_light:"
-            send_resolved: true
-            title: "{{ .CommonAnnotations.summary }}"
-            text: "{{ .CommonAnnotations.description }}"
+ingress:
+  enabled: false
 
-grafana:
-  service:
-    type: LoadBalancer
+resources: {}
 
-prometheus:
-  prometheusSpec:
-    scrapeInterval: 15s
+autoscaling:
+  enabled: false
 
-    additionalScrapeConfigs:
-      - job_name: node
-        static_configs:
-          - targets:
-              - prometheus-prometheus-node-exporter.monitoring.svc.cluster.local:9100
+serviceAccount:
+  create: true
+  name: ""
 
-      - job_name: flask-app
-        kubernetes_sd_configs:
-          - role: pod
-            namespaces:
-              names:
-                - default
-
-        relabel_configs:
-          - action: keep
-            source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
-            regex: "true"
-
-          - action: replace
-            source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
-            target_label: __metrics_path__
-
-          - action: replace
-            source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
-            regex: (.+);(\d+)
-            replacement: $1:$2
-            target_label: __address__
-
-  service:
-    type: ClusterIP
-
-additionalPrometheusRulesMap:
-  node-alerts:
-    groups:
-      - name: node_alerts
-        rules:
-          - alert: HighCPUUsage
-            expr: 1 - avg(rate(node_cpu_seconds_total{mode="idle"}[1m])) by (instance) > 0.8
-            for: 1m
-            labels:
-              severity: warning
-            annotations:
-              summary: "High CPU usage on {{ $labels.instance }}"
-              description: "CPU usage is above 80% for more than 1 minute"
-
-      - alert: FlaskAppDown
-        expr: up{job="flask-app"} == 0
-        for: 30s
-        labels:
-          severity: critical
-        annotations:
-          summary: "Flask app is down"
-          description: "Flask app has been unreachable for more than 30 seconds"
-
-      - alert: HighRequestLatency
-        expr: rate(flask_http_request_duration_seconds_sum[1m]) /
-              rate(flask_http_request_duration_seconds_count[1m]) > 0.5
-        for: 1m
-        labels:
-          severity: warning
-        annotations:
-          summary: "High request latency on Flask app"
-          description: "Average request latency is above 500ms"
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/path: "/metrics"
+  prometheus.io/port: "5000"
