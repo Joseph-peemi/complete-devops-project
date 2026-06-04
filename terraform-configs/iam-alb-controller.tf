@@ -49,7 +49,7 @@ resource "aws_iam_role" "alb_controller" {
 # Download and create the ALB controller policy
 resource "aws_iam_policy" "alb_controller" {
   name   = "AWSLoadBalancerControllerIAMPolicy"
-  policy = file("${path.module}/iam_policy.json")
+  policy = file("${path.module}./iam_policy.json")
 }
 
 # Attach policy to role

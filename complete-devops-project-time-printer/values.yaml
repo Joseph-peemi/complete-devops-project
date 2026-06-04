@@ -9,6 +9,9 @@ service:
   type: LoadBalancer
   port: 80
 
+httpRoute:
+  enabled: false
+  
 ingress:
   enabled: false
 
