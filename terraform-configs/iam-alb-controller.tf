@@ -46,10 +46,10 @@ resource "aws_iam_role" "alb_controller" {
   assume_role_policy = data.aws_iam_policy_document.alb_controller_trust.json
 }
 
-# Download and create the ALB controller policy
+# ALB controller policy - using latest v2.11.0
 resource "aws_iam_policy" "alb_controller" {
   name   = "AWSLoadBalancerControllerIAMPolicy"
-  policy = file("${path.module}./iam_policy.json")
+  policy = file("${path.module}/iam_policy.json")
 }
 
 # Attach policy to role
@@ -71,4 +71,8 @@ resource "kubernetes_service_account_v1" "alb_controller" {
       "app.kubernetes.io/name"      = "aws-load-balancer-controller"
     }
   }
+}
+
+output "alb_controller_role_arn" {
+  value = aws_iam_role.alb_controller.arn
 }
