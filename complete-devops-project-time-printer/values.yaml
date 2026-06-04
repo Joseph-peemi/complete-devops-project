@@ -8,6 +8,7 @@ image:
 service:
   type: LoadBalancer
   port: 80
+  loadBalancerClass: service.k8s.aws/nlb
 
 httpRoute:
   enabled: false
