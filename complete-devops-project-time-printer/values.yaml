@@ -3,12 +3,16 @@ replicaCount: 1
 image:
   repository: 627119595303.dkr.ecr.us-east-1.amazonaws.com/complete-devops-project
   pullPolicy: IfNotPresent
-  tag: "ebc9e76"
+  tag: "8647990"
 
 service:
   type: LoadBalancer
   port: 80
   targetPort: 8080
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-path: "/"
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-port: "8080"
+    service.beta.kubernetes.io/aws-load-balancer-healthcheck-protocol: "HTTP"
 
 httpRoute:
   enabled: false
