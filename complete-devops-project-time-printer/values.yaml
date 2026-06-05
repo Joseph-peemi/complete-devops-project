@@ -8,11 +8,11 @@ image:
 service:
   type: LoadBalancer
   port: 80
-  loadBalancerClass: service.k8s.aws/nlb
+  targetPort: 8080
 
 httpRoute:
   enabled: false
-  
+
 ingress:
   enabled: false
 
@@ -25,8 +25,8 @@ serviceAccount:
   create: true
   name: "complete-devops-project-time-printer"
   automount: true
-  
+
 podAnnotations:
   prometheus.io/scrape: "true"
   prometheus.io/path: "/metrics"
-  prometheus.io/port: "5000"
+  prometheus.io/port: "8080"
