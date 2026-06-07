@@ -103,8 +103,8 @@ Required GitHub Secrets
 Secret                 Description
 AWS_ACCESS_KEY_ID      IAM user access key
 AWS_SECRET_ACCESS_KEY  IAM user secret key
-Features
 
+Features
 Full Infrastructure as Code with Terraform
 Automated container builds and ECR pushes via GitHub Actions
 GitOps continuous deployment with ArgoCD
