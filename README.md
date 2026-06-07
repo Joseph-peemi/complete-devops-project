@@ -21,15 +21,25 @@ This project demonstrates a complete production-ready DevOps workflow on AWS:
 ## Project Structure
 .
 ├── complete-devops-project-time-printer/   # Flask application source
+
 ├── terraform-configs/                      # Terraform infrastructure
+
 ├── .github/workflows/                      # GitHub Actions CI pipeline
+
 ├── argocd-app.yaml                         # ArgoCD Application manifest
+
 ├── Dockerfile
+
 ├── docker-compose.yml
+
 ├── prometheus.yml
+
 ├── alertmanager.yml
+
 ├── alertrules.yml
+
 ├── values.yaml
+
 └── ...
 text## Tech Stack
 
