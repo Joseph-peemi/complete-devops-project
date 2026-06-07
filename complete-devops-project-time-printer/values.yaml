@@ -3,7 +3,7 @@ replicaCount: 1
 image:
   repository: 627119595303.dkr.ecr.us-east-1.amazonaws.com/complete-devops-project
   pullPolicy: IfNotPresent
-  tag: "50aa480"
+  tag: "3628274"
 
 containerPort: 8080
 
