@@ -1,334 +1,103 @@
-# Complete DevOps Project
+# AWS EKS GitOps Pipeline with Terraform & ArgoCD
 
-A complete DevOps pipeline using Docker, Terraform, EKS, Helm, ArgoCD and GitHub Actions.
+End-to-end **GitOps** pipeline on AWS EKS featuring a Python/Flask application, infrastructure-as-code with Terraform, container builds pushed to Amazon ECR, and continuous deployment using ArgoCD.
 
----
+![AWS](https://img.shields.io/badge/AWS-%23FF9900.svg?style=for-the-badge&logo=amazon-aws&logoColor=white)
+![Terraform](https://img.shields.io/badge/Terraform-%235835CC.svg?style=for-the-badge&logo=terraform&logoColor=white)
+![ArgoCD](https://img.shields.io/badge/ArgoCD-%231A1A1A.svg?style=for-the-badge&logo=argo&logoColor=white)
+![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-%232088FF.svg?style=for-the-badge&logo=github-actions&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
 
-## Project Stack
+## Overview
 
-- **App**: Python (Flask) containerized with Docker
-- **CI/CD**: GitHub Actions
-- **Infrastructure**: Terraform (AWS EKS + VPC + Helm providers)
-- **Cluster**: AWS EKS
-- **Container Registry**: AWS ECR
-- **GitOps**: ArgoCD
-- **Packaging**: Helm Chart
-- **State Backend**: AWS S3
+This project demonstrates a complete production-ready DevOps workflow:
 
----
+- **Infrastructure**: Provisioned with Terraform (VPC, EKS cluster, and supporting resources)
+- **Application**: Python Flask app containerized with Docker
+- **CI/CD**: GitHub Actions for building and pushing container images to Amazon ECR
+- **GitOps**: ArgoCD for declarative deployments on AWS EKS
+- **Observability**: Prometheus + Alertmanager + Grafana
+- **State Management**: Terraform backend on Amazon S3
 
-## How to Run
+## Project Structure
+├── complete-devops-project-time-printer/   # Flask application
+├── terraform-configs/                      # Terraform IaC
+├── .github/workflows/                      # GitHub Actions CI pipeline
+├── argocd-app.yaml                         # ArgoCD Application definition
+├── Dockerfile
+├── docker-compose.yml
+├── prometheus.yml
+├── alertmanager.yml
+├── alertrules.yml
+└── ...
 
-### Prerequisites
-- AWS CLI installed and configured
-- Terraform installed
-- ArgoCD CLI installed
-- kubectl installed
-- Helm installed
 
-### 1. Create S3 Bucket for Terraform State
+## Tech Stack
+
+| Layer              | Technology                          |
+|--------------------|-------------------------------------|
+| Application        | Python + Flask                      |
+| Container          | Docker                              |
+| CI/CD              | GitHub Actions                      |
+| IaC                | Terraform                           |
+| Cluster            | AWS EKS                             |
+| Registry           | Amazon ECR                          |
+| GitOps             | ArgoCD                              |
+| Observability      | Prometheus, Alertmanager, Grafana   |
+| State Backend      | AWS S3                              |
+
+## Prerequisites
+
+- AWS account with appropriate permissions
+- AWS CLI configured
+- Terraform >= 1.5
+- kubectl
+- Helm
+- ArgoCD CLI (optional but recommended)
+
+## Getting Started
+
+### 1. Terraform State Backend
+
+Create an S3 bucket for Terraform state:
+
 ```bash
-aws s3 mb s3://<your-unique-bucket-name> --region us-east-1
-```
-
-> Also update `backend.tf` with the same bucket name.
-
-### 2. Provision Infrastructure with Terraform
-```bash
+aws s3 mb s3://your-unique-terraform-state-bucket --region us-east-1
+Update backend.tf with your bucket name.
+2. Provision Infrastructure
 cd terraform-configs
 terraform init
 terraform plan -out=tfplan
 terraform apply tfplan
-```
 
-This will create:
-- VPC with public and private subnets
-- EKS cluster with managed node group
-- ArgoCD installed via Helm
+This creates:
 
-### 3. Connect kubectl to EKS
-```bash
+VPC with public/private subnets
+AWS EKS cluster with managed node groups
+ArgoCD (via Helm)
+
+3. Connect to the Cluster
 aws eks update-kubeconfig --region us-east-1 --name complete-devops-project
 kubectl get nodes
-```
+4. Access ArgoCD UI
+Open http://localhost:8081 (can also use LB)
+Default username: admin
+Password: kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
 
-### 4. Access ArgoCD
-```bash
-kubectl port-forward svc/argocd-server -n argocd 8081:443
-```
-Open `http://localhost:8081` in your browser.
+5. Deploy the Application
+Bashkubectl apply -f argocd-app.yaml
+The GitHub Actions pipeline will automatically build, push to ECR, and update the Helm values for ArgoCD to pick up new versions.
+GitHub Actions Secrets
 
-Get the initial admin password:
-```bash
-kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 -d
-```
+Secret                  Description
+AWS_ACCESS_KEY_ID       IAM user access key
+AWS_SECRET_ACCESS_KEY   IAM user secret key
 
-Login to ArgoCD CLI:
-```bash
-argocd login localhost:8081 --username admin --password <output from above command> --insecure
-```
+Features
 
-Add your GitHub repo to ArgoCD:
-```bash
-argocd repo add https://github.com/<github-username>/<repo> --username <github-username> --password <github-password-or-token> --server localhost:8081 --insecure
-```
-
-### 5. Deploy the Application
-```bash
-kubectl apply -f argocd-app.yaml
-```
-
-### 6. Access the App
-```bash
-kubectl get svc -n default
-```
-Use the `EXTERNAL-IP` from the LoadBalancer to access the app in the browser on port `8080`:
-```
-http://<EXTERNAL-IP>:8080
-```
-
-> Note: It may take 2-3 minutes for the LoadBalancer to be provisioned after deployment.
-
----
-
-## GitHub Actions Secrets Required
-
-| Secret | Description |
-|---|---|
-| `AWS_ACCESS_KEY_ID` | IAM user access key (application running outside AWS) |
-| `AWS_SECRET_ACCESS_KEY` | IAM user secret key |
-| `GITHUB_TOKEN` | Auto-generated by GitHub Actions, no setup needed |
-
----
-
-## Issues Solved
-
-### 1. Git Push — `src refspec main does not match any`
-No commits existed or the branch was named `master` not `main`.
-```bash
-git add .
-git commit -m "initial commit"
-git branch -M main
-git push -u origin main
-```
-
-### 2. GitHub Authentication Failed
-GitHub no longer accepts passwords for HTTPS. Fixed by using a Personal Access Token (PAT):
-```bash
-git remote set-url origin https://<username>:<PAT>@github.com/<username>/<repo>.git
-```
-
-### 3. Wrong GitHub Account (403 Permission Denied)
-Was authenticated as `JosephAbuchi` but pushing to `Joseph-Peemi`'s repo. Fixed by updating git config and remote URL:
-```bash
-git config --global user.name "Joseph-Peemi"
-git remote set-url origin https://Joseph-Peemi@github.com/Joseph-peemi/complete-devops-project.git
-```
-
-### 4. Terraform `terraform plan` Warning — No `-out` Option
-Terraform warned that without saving the plan, it can't guarantee exact actions on apply. Fixed by always saving the plan:
-```bash
-terraform plan -out=tfplan
-terraform apply tfplan
-```
-
-### 5. Helm Provider Timeout — `Failed to load plugin schemas`
-The Helm provider couldn't start because Minikube/Docker was not running. Fix: always start Docker Desktop and Minikube before running any Terraform commands.
-
-### 6. ArgoCD Helm Installation Failed — `Kubernetes cluster unreachable`
-ArgoCD Helm release was trying to install before the cluster was ready. Fixed by:
-- Adding `depends_on = [module.eks]` to `argocd.tf`
-- Fixing the Helm provider config in `provider.tf` to use EKS cluster credentials
-- Using `data.aws_eks_cluster_auth` for token-based authentication
-
-### 7. Minikube Failed — `x509: cannot parse IP address of length 0`
-Stale/corrupted Minikube certificates from a previous failed run. Fixed by deleting the old cluster and clearing certs:
-```bash
-minikube delete --profile complete-devops-project
-rm -rf ~/.minikube/certs
-```
-
-### 8. Stuck Terraform/Helm Processes (`UE` state)
-Multiple hung `terraform-provider-helm` processes in Uninterruptible state. Fixed by killing them:
-```bash
-kill -9 <PID>
-```
-If still stuck (UE state), a full Mac restart is required.
-
-### 9. ArgoCD Session Token Invalid
-Running `argocd repo add` failed with `token signature is invalid`. Fixed by logging in again:
-```bash
-argocd login localhost:8081 --insecure --username admin --password <password>
-```
-
-### 10. `argocd-app.yaml` — `apiVersion not set`
-`apiversion` was lowercase. Fixed by correcting the casing and also moving `destination` out of `source` to the correct `spec` level:
-```yaml
-apiVersion: argoproj.io/v1alpha1  # capital V
-spec:
-  source:
-    ...
-  destination:  # must be at spec level, not inside source
-    server: "https://kubernetes.default.svc"
-    namespace: default
-```
-
-### 11. ArgoCD — `revision HEAD must be resolved`
-ArgoCD couldn't resolve `HEAD` because the branch is named `master`. Spotted by finding the only `level=error` line in the logs:
-```
-grpc.error="rpc error: code = Unknown desc = revision HEAD must be resolved"
-```
-Fixed by updating `argocd-app.yaml`:
-```yaml
-targetRevision: master
-```
-
-### 12. `values.yaml` YAML Syntax Error — `could not find expected ':'`
-Missing space after `tag:` in `values.yaml`:
-```yaml
-# wrong
-tag:a7a26cd
-
-# correct
-tag: a7a26cd
-```
-
-### 13. CI Pipeline Kept Reintroducing the `values.yaml` Bug
-The GitHub Actions `sed` command was stripping the space on every pipeline run:
-```bash
-# wrong
-sed -i "s/tag:.*/tag:${{ env.SHORT_SHA }}/"
-
-# correct
-sed -i "s/tag:.*/tag: ${{ env.SHORT_SHA }}/"
-```
-
-### 14. Git Push Rejected — `non-fast-forward`
-Local branch was behind remote. Fixed by rebasing before pushing:
-```bash
-git pull origin master --rebase
-git push origin master
-```
-
-### 15. Detached HEAD State
-Was not on any branch after rebase operations. Fixed by checking out master:
-```bash
-git checkout master
-git pull origin master --rebase
-git push origin master
-```
-
-### 16. Migrated from Minikube to AWS EKS + ECR
-Replaced local Minikube cluster and DockerHub with AWS EKS and ECR:
-- Updated `main.tf` to use `terraform-aws-modules/eks/aws` and `terraform-aws-modules/vpc/aws`
-- Updated `provider.tf` to use EKS token-based authentication
-- Updated `ci.yaml` to push images to ECR instead of DockerHub
-- Added `variables.tf` to store all configurable values
-- Added `backend.tf` to store Terraform state in S3
-
-### 17. EKS Cluster Unreachable — `the server has asked for the client to provide credentials`
-kubectl couldn't authenticate to EKS because kubeconfig was stale or the wrong IAM user created the cluster. Fixed by:
-- Adding `enable_cluster_creator_admin_permissions = true` to EKS module so the creator always has admin access
-- Running `aws eks update-kubeconfig` to refresh credentials:
-```bash
-aws eks update-kubeconfig --region us-east-1 --name complete-devops-project
-```
-
-### 18. `values.yaml` — `nil pointer evaluating interface {}.enabled`
-`httpRoute.enabled` and `serviceAccount.create` were missing from `values.yaml`. Fixed by adding:
-```yaml
-httpRoute:
-  enabled: false
-serviceAccount:
-  create: false
-  automount: false
-  name: ""
-replicaCount: 1
-```
-
-### 19. Helm Provider — `Blocks of type kubernetes are not expected here`
-Helm provider v3 uses `kubernetes` as an argument not a block. Fixed in `provider.tf`:
-```hcl
-# wrong
-provider "helm" {
-  kubernetes {
-    ...
-  }
-}
-
-# correct
-provider "helm" {
-  kubernetes = {
-    ...
-  }
-}
-```
-
-### 20. LoadBalancer Not Reachable — `ingress conflict with ClusterIP`
-Ingress and LoadBalancer service type were conflicting. ArgoCD kept reverting the service back to `ClusterIP`. Fixed by:
-- Disabling ingress in `values.yaml` since AWS Load Balancer Controller was not installed
-- Keeping `service.type: LoadBalancer` in `values.yaml` so ArgoCD deploys it correctly
-- Accessing the app via the ELB DNS name on port `8080`:
-```
-http://<EXTERNAL-IP>:8080
-```
-
-### 21. Image Tag Parsed as Scientific Notation — `couldn't parse image name`
-Git SHA tags like `603e100` were being parsed as scientific notation (`6.03e+102`) by the YAML parser. Fixed by quoting the tag in `values.yaml` and updating the `sed` command in `ci.yaml`:
-```yaml
-# wrong
-tag: 603e100
-
-# correct
-tag: "603e100"
-```
-```bash
-# wrong
-sed -i "s/tag:.*/tag: $SHORT_SHA/"
-
-# correct
-sed -i 's/tag:.*/tag: "'"$SHORT_SHA"'"/'
-```
-
-### 22. CI Pipeline Not Meeting Organization Standards
-Updated `ci.yaml` to meet organization standards:
-- Upgraded `actions/checkout@v2` to `@v4`
-- Added `permissions: contents: write` and `id-token: write`
-- Added `timeout-minutes: 30` to prevent hung jobs
-- Added `environment: production`
-- Removed commented out DockerHub steps
-- Added `--no-verify` flag to `git push`
-
-### 23. Code Quality — Using `time` module instead of `datetime`
-The `time` module doesn't handle timezones consistently. Fixed by replacing with `datetime`:
-```python
-# wrong
-import time
-current_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-
-# correct
-from datetime import datetime, timezone
-current_time = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
-```
-
-### 24. `.gitignore` Missing Sensitive File Entries
-Added missing entries to prevent sensitive files from being committed:
-```
-*.tfvars
-*.tfplan
-tfplan
-.terraform.lock.hcl
-**/.terraform/
-```
-
----
-
-When debugging with `kubectl logs`, ignore all `level=info` lines and focus on:
-- `level=error` — something went wrong
-- `grpc.code=Unknown` — confirms a failure
-- `desc = ...` — the human-readable error message
-
-Example:
-```
-level=error grpc.code=Unknown grpc.error="rpc error: code = Unknown desc = revision HEAD must be resolved"
-```
+Full Infrastructure as Code with Terraform
+Automated container builds and ECR pushes
+GitOps-based continuous deployment with ArgoCD
+Monitoring stack (Prometheus + Alertmanager)
+Secure Terraform state in S3
+Production-grade EKS setup with best practices
